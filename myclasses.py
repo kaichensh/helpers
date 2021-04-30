@@ -20,7 +20,6 @@ import logging
 import datetime
 import bisect
 import itertools
-from avian_learning import setup
 from scipy.io import wavfile
 sns.set_palette('colorblind')
 import shutil

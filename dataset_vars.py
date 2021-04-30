@@ -7,18 +7,21 @@ class Dataset:
     '''
     datasets path and subjs
     '''
-    def __init__(self, species=None):
+    def __init__(self, species=None, quiet_mode=False):
         '''
         List all available datasets, only if the subfolder starts with a capital letter
         '''
         self.root_path = os.path.abspath('/mnt/cube/kai/datasets')
         self.root_path_save = os.path.abspath('/mnt/cube/kai/data_processed/datasets')
+        self.path_results = os.path.abspath('/mnt/cube/kai/results/sound_texture')
         self.available_species = sorted([subdir for subdir in next(os.walk(self.root_path))[1] if subdir[0].isupper()])
+        self.quiet_mode=quiet_mode
         if species:
             self.assign(species)
         else:
-            print(f'Available species: {self.available_species}')
-            paragraph_print('Use Dataset.assign() method to assign a species!')
+            if not self.quiet_mode:
+                print(f'Available species: {self.available_species}')
+                paragraph_print('Use Dataset.assign() method to assign a species!')
         
     def assign(self, species):
         '''
@@ -60,7 +63,8 @@ class Dataset:
             wav_name_pattern = '*-*'
         elif self.species in ['CaThrasher', 'CaVireo']:
             wav_name_pattern = '*denoised'
-            fancy_print('Only counting denoised wav files.')
+            if not self.quiet_mode:
+                fancy_print('Only counting denoised wav files.')
         else:
             wav_name_pattern = '*'
         wav_files = find_wav_files(path, wav_name_pattern)
@@ -77,8 +81,9 @@ class Dataset:
         include_pattern = re.compile(include)
         subjs = [subj for subj in sorted(next(os.walk(self.path))[1]) 
                  if (not re.match(exclude_pattern, subj)) and re.match(include_pattern, subj)]
-        print(f'Available subjects for {self.species} are:')
-        paragraph_print(subjs)
+        if not self.quiet_mode:
+            print(f'Available subjects for {self.species} are:')
+            paragraph_print(subjs)
         return(subjs)
     
     def find_path(self, *args):
@@ -108,14 +113,18 @@ def species_summary(species):
     subj = subjs[0]
     if species in ['BengaleseFinch', 'CaThrasher', 'CaVireo']:
         subj_path = os.path.join(species_path, subj, 'wavs')
-        paragraph_print(f'NOTE!!! wav location for an example subject: {subj_path}')
+        if not self.quiet_mode:
+            paragraph_print(f'NOTE!!! wav location for an example subject: {subj_path}')
     elif species == 'SwampSparrow':
         subj_path = os.path.join(species_path, subj)
-        fancy_print(f'{species} has not been processed!', 'X')
+        if not self.quiet_mode:
+            fancy_print(f'{species} has not been processed!', 'X')
     else:
         subj_path = os.path.join(species_path, subj)
-        paragraph_print(f'Example subject wav location: {subj_path}')
+        if not self.quiet_mode:
+            paragraph_print(f'Example subject wav location: {subj_path}')
     
     assert os.path.exists(subj_path), 'Subject path does not seem right!!'
     if species == 'ZebraFinch':
-        paragraph_print(f'NOTE FOR ZEBRA FINCH!!! Recordings with only number and - are actual recording, example: 13-25-07-01.wav')
+        if not self.quiet_mode:
+            paragraph_print(f'NOTE FOR ZEBRA FINCH!!! Recordings with only number and - are actual recording, example: 13-25-07-01.wav')
